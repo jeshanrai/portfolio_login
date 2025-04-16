@@ -339,10 +339,11 @@ td.gain-loss.red {
                         <td class='gain-loss " . ($gainLoss >= 0 ? "green" : "red") . "'>
                             " . number_format($gainLoss, 2) . " (" . $gainLossPercentage . "%)
                         </td>
-                        <td>
-                            <button class='editStockButton'>Edit</button>
-                            <button class='deleteStockButton'>Delete</button>
-                        </td>
+                      <td>
+                                <button class='editStockButton'>Edit</button>
+                                <button class='deleteStockButton'>Delete</button>
+                              </td>;
+            
                     </tr>";
                 }
             } else {
@@ -358,6 +359,8 @@ td.gain-loss.red {
         </div>
     </main>
 </div>
+
+
 
 </body>
 </html>

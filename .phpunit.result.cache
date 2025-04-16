@@ -1,0 +1,1 @@
+{"version":1,"defects":[],"times":{"StockTest::testAddStock":0.026,"StockTest::testUpdateStock":0.025,"updateTest::testUpdateStock":0.023,"addtest::testAddStock":0.013,"deleteTest::testDeleteStock":0.023}}
