@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -13,28 +14,62 @@ if (!$conn) {
 $user_id = $_SESSION['user_id'];
 $name = $_SESSION['name'];
 
-$query = $conn->prepare("SELECT stock_name, stock_quantity, stock_price, buy_price FROM stocks WHERE user_id = ?");
+$query = $conn->prepare("SELECT stock_name, stock_quantity, buy_price FROM stocks WHERE user_id = ?");
 $query->bind_param("i", $user_id);
 $query->execute();
 $result = $query->get_result();
 
+
+
+
+// Fetch NEPSE API data
+$apiUrl = "http://localhost:3000/today-price";
+$response = @file_get_contents($apiUrl);
+if ($response === FALSE) {
+    die("⚠️ Failed to fetch NEPSE API from $apiUrl");
+}
+
+$apiData = json_decode($response, true);
+
+// Map API data: [ 'NIMB' => 200.5, ... ]
+$ltpList = [];
+if (isset($apiData['data'])) {
+    foreach ($apiData['data'] as $item) {
+        $code = strtoupper(trim($item['company']['code']));
+        $close = $item['price']['close'];
+        $ltpList[$code] = $close;
+    }
+}
+
+// Prepare data for display
 $stocks = [];
 $totalValue = 0;
 $totalProfitLoss = 0;
 
-while ($row = $result->fetch_assoc()) {
-    $stocks[] = $row;
-    $totalValue += $row['stock_quantity'] * $row['stock_price'];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $nameCode = strtoupper(trim($row['stock_name']));
+        $buy = $row['buy_price'];
+        $qty = $row['stock_quantity'];
+        $price = $ltpList[$nameCode] ?? 0;
+
+        $stocks[] = [
+            'stock_name' => $nameCode,
+            'buy_price' => $buy,
+            'stock_quantity' => $qty,
+            'stock_price' => $price
+        ];
+
+        $totalValue += $price * $qty;
+        $totalProfitLoss += ($price - $buy) * $qty;
+    }
 }
 
-foreach ($stocks as &$stock) {
-    $stockTotal = $stock['stock_quantity'] * $stock['stock_price'];
-    $stock['total'] = $stockTotal;
-    $stock['profit_loss'] = ($stock['stock_price'] - $stock['buy_price']) * $stock['stock_quantity'];
-    $totalProfitLoss += $stock['profit_loss'];
-}
-unset($stock);
+$conn->close();
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,6 +84,8 @@ unset($stock);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
+
+<style>
     :root {
     --primary: #00bcd4;
     --bg-light: #f0f2f5;
@@ -190,7 +227,7 @@ th, td {
 
 th {
     background-color: var(--primary);
-    color: white;
+    color:black;
 }
 
 canvas {
@@ -359,9 +396,46 @@ body.dark-mode .card:hover {
         margin-top: 0.5rem;
     }
 }
+body {
+        transition: background-color 0.3s, color 0.3s;
+    }
 
+    body.light-mode {
+        background-color: white;
+        color: black;
+    }
 
+    body.dark-mode {
+        background-color: #121212;
+        color: white;
+    }
+
+    nav {
+        background-color: #1e1e1e;
+    }
+
+    body.dark-mode nav {
+        background-color: #1e1e1e;
+    }
+.
+    table {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    th, td {
+        padding: 0.5rem;
+        text-align: center;
+    }
+    body.dark-mode .profit {
+    color: #00ff99; /* bright green */
+}
+body.dark-mode .loss {
+    color: #ff6b6b; /* bright red/pink */
+}
         
+    </style>
+      
     </style>
 </head>
 <body>
@@ -441,79 +515,97 @@ body.dark-mode .card:hover {
 </div>
 
 <script>
-    const ctx = document.getElementById('stockChart').getContext('2d');
     const stockLabels = <?= json_encode(array_column($stocks, 'stock_name')) ?>;
     const stockData = <?= json_encode(array_map(function($s) {
         return $s['stock_quantity'] * $s['stock_price'];
     }, $stocks)) ?>;
 
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: stockLabels,
-            datasets: [{
-                data: stockData,
-                backgroundColor: [
-                    '#00bcd4', '#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0',
-                    '#9966ff', '#f56991', '#91f5a9', '#d091f5', '#f5e291'
-                ],
-                borderColor: '#fff',
-                borderWidth: 2,
-                hoverOffset: 20
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#333',
-                        font: { size: 14 }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const label = context.label || '';
-                            const value = context.raw;
-                            const total = context.chart._metasets[context.datasetIndex].total;
-                            const percentage = ((value / total) * 100).toFixed(2);
-                            return `${label}: Rs. ${value.toFixed(2)} (${percentage}%)`;
+    // Store chart instance globally to allow re-rendering
+    let stockChart;
+
+    function getChartColors() {
+        // Dark-friendly palette with higher contrast
+        return [
+            '#ff6b6b', '#4ecdc4', '#ffe66d', '#1a535c', '#f25f5c',
+            '#2ec4b6', '#ff9f1c', '#e71d36', '#3a86ff', '#8338ec'
+        ];
+    }
+
+    function getLegendTextColor() {
+        return document.body.classList.contains('dark-mode') ? '#f0f0f0' : '#333';
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById('stockChart').getContext('2d');
+
+        // Destroy previous chart if it exists
+        if (stockChart) stockChart.destroy();
+
+        stockChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: stockLabels,
+                datasets: [{
+                    data: stockData,
+                    backgroundColor: getChartColors(),
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: getLegendTextColor(),
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.label || '';
+                                const value = context.raw;
+                                const total = context.chart._metasets[context.datasetIndex].total;
+                                const percentage = ((value / total) * 100).toFixed(2);
+                                return `${label}: Rs. ${value.toFixed(2)} (${percentage}%)`;
+                            }
                         }
                     }
                 }
             }
-        }
-    });
-
-    function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-
-    // Update chart text color
-    stockChart.options.plugins.legend.labels.color = isDark ? '#f5f5f5' : '#333';
-    stockChart.options.plugins.tooltip.backgroundColor = isDark ? '#2c2c3e' : 'rgba(0,0,0,0.8)';
-    stockChart.options.plugins.tooltip.titleColor = isDark ? '#fff' : '#fff';
-    stockChart.options.plugins.tooltip.bodyColor = isDark ? '#ddd' : '#fff';
-    stockChart.update();
-}
-
-// Optional: remember theme toggle state
-window.addEventListener('DOMContentLoaded', () => {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-        document.getElementById('themeToggle').checked = true;
+        });
     }
 
-    document.getElementById('themeToggle').addEventListener('change', () => {
-        const isDarkNow = document.body.classList.contains('dark-mode');
-        localStorage.setItem('darkMode', !isDarkNow);
-    });
-});
+    // Dark/Light Theme Toggle without reload
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
 
+        const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+
+        renderChart(); // Re-render to update legend color
+    }
+
+    // On load, apply saved theme and render chart
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        const toggle = document.getElementById('themeToggle');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            toggle.checked = true;
+        } else {
+            toggle.checked = false;
+        }
+
+        renderChart(); // Initial chart render
+    });
 </script>
+
+
 
 </body>
 </html>
