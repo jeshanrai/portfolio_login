@@ -82,267 +82,261 @@ $conn->close();
 
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <style>
-
 <style>
-    :root {
-    --primary: #00bcd4;
-    --bg-light: #f0f2f5;
-    --bg-dark: #1e1e2f;
-    --card-light: #fff;
-    --card-dark: #2c2c3e;
-    --text-light: #333;
-    --text-dark: #f5f5f5;
+
+
+:root {
+  --primary: #6366f1;
+  --primary-dark: #818cf8;
+  --bg-light: #f9fafb;
+  --bg-dark: #121212;
+  --text-light: #1f2937;
+  --text-dark: #ffffff;
+  --input-light: rgba(255, 255, 255, 0.6);
+  --input-dark: rgba(40, 40, 70, 0.5);
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-dark: rgba(255, 255, 255, 0.05);
+  --blur: 20px;
 }
 
+/* ===================== Body ===================== */
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: var(--bg-light);
-    color: var(--text-light);
-    margin: 0;
-    padding-top: 70px;
-    transition: background 0.5s ease, color 0.5s ease;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #e0e7ff, #f9fafb);
+  color: var(--text-light);
+  margin: 0;
+  padding: 70px 0 0;
+  transition: background 0.4s, color 0.4s;
 }
 
-/* Dark mode background */
 body.dark-mode {
-    background-color: var(--bg-dark);
-    color: var(--text-dark);
+  background: linear-gradient(135deg, #1e1e2f, #121212);
+  color: var(--text-dark);
 }
 
-
+/* ===================== Navbar ===================== */
 nav {
-    background: #111827;
-    color: white;
-    padding: 1rem 2rem;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 999;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background-color: #0b101e;
+  color: white;
+  padding: 1rem 2rem;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 nav a {
-    color: #ffffffdd;
-    text-decoration: none;
-    margin: 0 1rem;
-    font-weight: 500;
-    transition: 0.3s ease;
+  color: #ffffffdd;
+  text-decoration: none;
+  margin: 0 1rem;
+  font-weight: 500;
+  transition: 0.3s ease;
 }
 
 nav a:hover {
-    color: #ffffff;
-    background-color: #00bcd4;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
+  color: #ffffff;
+  background-color: #00bcd4;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
 }
 
+/* ===================== Theme Toggle ===================== */
+.ios-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 32px;
+  margin-right: 20px;
+}
+
+.ios-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: background-color 0.4s;
+  cursor: pointer;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.4s;
+  z-index: 2;
+}
+
+.sun-icon,
+.moon-icon {
+  position: absolute;
+  font-size: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  transition: opacity 0.4s ease;
+}
+
+.sun-icon {
+  left: 8px;
+  color: #ffca28;
+  opacity: 1;
+}
+
+.moon-icon {
+  right: 8px;
+  color: #90caf9;
+  opacity: 0;
+}
+
+input:checked + .slider {
+  background-color: #4cd964;
+}
+
+input:checked + .slider::before {
+  transform: translateX(26px);
+}
+
+input:checked + .slider .sun-icon {
+  opacity: 0;
+}
+
+input:checked + .slider .moon-icon {
+  opacity: 1;
+}
+
+/* ===================== Layout and Content ===================== */
 .container {
-    width: 90%;
-    max-width: 1100px;
-    margin: auto;
-    margin-top: 0.5rem;
+  width: 90%;
+  max-width: 1100px;
+  margin: auto;
+  margin-top: 0.5rem;
 }
 
 .welcome {
-    text-align: center;
-    margin-bottom: 10px;
-    color: var(--text-light);
+  text-align: center;
+  margin-bottom: 10px;
+  color: var(--text-light);
 }
 
 .welcome h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-light);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
 }
 
 .welcome p {
-    font-size: 1.1rem;
-    color: var(--text-light);
+  font-size: 1.1rem;
+  color: var(--text-light);
 }
 
 .profit-loss {
-    text-align: center;
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    font-weight: bold;
-    color: yellow;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  color: yellow;
 }
 
 .card {
-    background: var(--card-light);
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-    margin-bottom: 25px;
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeSlideUp 0.6s forwards;
-    transition: all 0.5s ease;
-    color: var(--text-light);
+  background: var(--card-light);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  margin-bottom: 25px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.6s forwards;
+  transition: all 0.5s ease;
+  color: var(--text-light);
 }
 
 .card:nth-child(1) { animation-delay: 0.2s; }
 .card:nth-child(2) { animation-delay: 0.4s; }
 
 @keyframes fadeSlideUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: var(--text-light);
-    border-left: 4px solid var(--primary);
-    padding-left: 12px;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-light);
+  border-left: 4px solid var(--primary);
+  padding-left: 12px;
 }
 
 .dashboard {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow-x: auto;
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+  overflow-x: auto;
 }
 
 th, td {
-    text-align: left;
-    padding: 14px;
-    border-bottom: 1px solid #e0e0e0;
-    font-size: 15px;
-    color: var(--text-light);
+  text-align: center;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 15px;
+  color: var(--text-light);
 }
 
 th {
-    background-color: var(--primary);
-    color:black;
+    background-color: #00acc1;
+
+  color: black;
 }
 
 canvas {
-    max-width: 100%;
-    height: auto;
-    transition: all 0.4s ease;
+  max-width: 100%;
+  height: auto;
+  transition: all 0.4s ease;
 }
 
 .logbutton {
-    margin-right: 80px;
+  margin-right: 80px;
 }
 
-.ios-switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 32px;
-    margin-right: 20px;
-}
-
-.ios-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
-    border-radius: 34px;
-    transition: background-color 0.4s;
-    cursor: pointer;
-}
-
-.slider::before {
-    content: "";
-    position: absolute;
-    height: 24px;
-    width: 24px;
-    left: 4px;
-    bottom: 4px;
-    background-color: #fff;
-    border-radius: 50%;
-    transition: transform 0.4s;
-    z-index: 2;
-}
-
-.sun-icon,
-.moon-icon {
-    position: absolute;
-    font-size: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 3;
-    transition: opacity 0.4s ease;
-}
-
-.sun-icon {
-    left: 8px;
-    color: #ffca28;
-    opacity: 1;
-}
-
-.moon-icon {
-    right: 8px;
-    color: #90caf9;
-    opacity: 0;
-}
-
-input:checked + .slider {
-    background-color: #4cd964;
-}
-
-input:checked + .slider::before {
-    transform: translateX(26px);
-}
-
-input:checked + .slider .sun-icon {
-    opacity: 0;
-}
-
-input:checked + .slider .moon-icon {
-    opacity: 1;
-}
-
-body.dark-mode .theme-switch {
-    background-color: var(--primary);
-    justify-content: flex-end;
-}
-
-body.dark-mode .theme-switch::before {
-    opacity: 0;
-}
-
-body.dark-mode .theme-switch::after {
-    opacity: 1;
-}
-
-/* 🌙 Dark Mode Styling */
+/* ===================== Dark Mode Styling ===================== */
 body.dark-mode {
-    background-color: var(--bg-dark);
-    color: var(--text-dark);
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
 }
 
 body.dark-mode .card,
 body.dark-mode .welcome {
-    background: var(--card-dark);
-    color: var(--text-dark);
+  background: var(--card-dark);
+  color: var(--text-dark);
 }
 
-body.dark-mode th {
-    background-color: #00acc1;
-    color: var(--text-dark);
-}
+
 
 body.dark-mode .welcome h1,
 body.dark-mode .welcome p,
@@ -354,88 +348,76 @@ body.dark-mode th,
 body.dark-mode a,
 body.dark-mode .profit-loss,
 body.dark-mode .card h2 {
-    color: var(--text-dark) !important;
+  color: var(--text-dark) !important;
 }
 
 body.dark-mode .card,
 body.dark-mode canvas {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.08),
-                0 0 40px rgba(255, 255, 255, 0.05);
-    transition: box-shadow 0.5s ease;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.08),
+              0 0 40px rgba(255, 255, 255, 0.05);
+  transition: box-shadow 0.5s ease;
 }
 
 body.dark-mode .card:hover {
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.15),
-                0 0 50px rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.15),
+              0 0 50px rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+body.dark-mode .profit {
+  color: #00ff99;
 }
 
-@media screen and (max-width: 768px) {
-    .dashboard {
-        grid-template-columns: 1fr;
-    }
-
-    nav {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .logbutton {
-        margin-right: 0;
-        margin-top: 0.5rem;
-    }
-}
-body {
-        transition: background-color 0.3s, color 0.3s;
-    }
-
-    body.light-mode {
-        background-color: white;
-        color: black;
-    }
-
-    body.dark-mode {
-        background-color: #121212;
-        color: white;
-    }
-
-    nav {
-        background-color: #1e1e1e;
-    }
-
-    body.dark-mode nav {
-        background-color: #1e1e1e;
-    }
-.
-    table {
-        width: 100%;
-        margin-top: 1rem;
-    }
-
-    th, td {
-        padding: 0.5rem;
-        text-align: center;
-    }
-    body.dark-mode .profit {
-    color: #00ff99; /* bright green */
-}
 body.dark-mode .loss {
-    color: #ff6b6b; /* bright red/pink */
+  color: #ff6b6b;
 }
-        
-    </style>
-      
+
+/* ===================== Animations ===================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================== Responsive ===================== */
+@media screen and (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logbutton {
+    margin-right: 0;
+    margin-top: 0.5rem;
+  }
+}
+/* Light mode */
+.profit {
+  color: green;
+}
+
+.loss {
+  color: red;
+}
+
+body.dark-mode .profit {
+  color:green !important; /* bright green */
+}
+
+body.dark-mode .loss {
+  color:red !important; /* bright red */
+}
+
+    
     </style>
 </head>
 <body>
@@ -443,8 +425,8 @@ body.dark-mode .loss {
 <nav>
     <div>
         <a href="index.php"><i class="fas fa-home"></i> Home</a>
-        <a href="addstock.php"><i class="fas fa-plus-circle"></i> Add Stock</a>
         <a href="portfolio.php"><i class="fas fa-list"></i> Portfolio</a>
+        <a href="addstock.php"><i class="fas fa-plus-circle"></i> Add Stock</a>
     </div>
 
     <div style="display: flex; align-items: center;">
@@ -485,7 +467,7 @@ body.dark-mode .loss {
                     <th>Stock</th>
                     <th>Quantity</th>
                     <th>Price (Rs.)</th>
-                    <th>Purchase Price</th>
+               
                     <th>Total (Rs.)</th>
                     <th>Profit/Loss</th>
                 </tr>
@@ -493,16 +475,16 @@ body.dark-mode .loss {
                     $total = $stock['stock_quantity'] * $stock['stock_price'];
                     $individualProfitLoss = ($stock['stock_price'] - $stock['buy_price']) * $stock['stock_quantity'];
                 ?>
-                <tr>
-                    <td><?= htmlspecialchars($stock['stock_name']) ?></td>
-                    <td><?= $stock['stock_quantity'] ?></td>
-                    <td><?= number_format($stock['stock_price'], 2) ?></td>
-                    <td><?= number_format($stock['buy_price'], 2) ?></td>
-                    <td><?= number_format($total, 2) ?></td>
-                    <td style="color: <?= $individualProfitLoss >= 0 ? 'green' : 'red' ?>;">
-                        <?= $individualProfitLoss >= 0 ? '+' : '-' ?>Rs. <?= number_format(abs($individualProfitLoss), 2) ?>
-                    </td>
-                </tr>
+            <tr>
+    <td><?= htmlspecialchars($stock['stock_name']) ?></td>
+    <td><?= $stock['stock_quantity'] ?></td>
+    <td><?= number_format($stock['stock_price'], 2) ?></td>
+    <td><?= number_format($total, 2) ?></td>
+    <td class="<?= $individualProfitLoss >= 0 ? 'profit' : 'loss' ?>">
+        <?= $individualProfitLoss >= 0 ? '+' : '-' ?>Rs. <?= number_format(abs($individualProfitLoss), 2) ?>
+    </td>
+</tr>
+
                 <?php endforeach; ?>
             </table>
         </div>
