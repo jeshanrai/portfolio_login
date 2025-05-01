@@ -302,9 +302,56 @@ td.gain-loss.red {
 .text-loss {
     color: red !important;
 }
+.download-btn {
+    padding: 10px 20px;
+    background-color: #007bff; /* Bootstrap primary color */
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
 
-     .logbutton {
-         margin-right: 60px;}
+.download-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+    text-decoration: none;
+}
+
+.deleteStockButton {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.deleteStockButton:hover {
+    background-color: #c82333;
+}
+body.dark-mode .profit-loss {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+
+body.dark-mode .profit-loss #profitLossValue {
+    color: inherit;
+}
+
+body.dark-mode .download-btn {
+    background-color: #28a745;
+}
+
+body:not(.dark-mode) .download-btn {
+    background-color: #007bff;
+}
+
+.download-btn:hover {
+    background-color: #0056b3;
+}
+         
  </style>
 </head>
 <body>
@@ -351,20 +398,19 @@ td.gain-loss.red {
     $profitLoss = $totalPortfolioValue - $totalWACC;
 $plClass = $profitLoss >= 0 ? 'text-profit' : 'text-loss';
 ?>
-<div class="profit-loss" id="profitLoss">
-    Profit/Loss: Rs <span id="profitLossValue" class="<?= $plClass ?>">
-        <?= number_format($profitLoss, 2) ?>
-    </span>
-    <a href="createpdf.php" target="_blank" download="portfolio.pdf" id="downloadPdf" class="btn btn-primary" style="margin-left: 20px;">Download PDF</a>
-
+<div class="profit-loss" id="profitLoss" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 10px 20px; background-color: #f8f9fa; border-radius: 10px;">
+    <div>
+        Profit/Loss: Rs 
+        <span id="profitLossValue" class="<?= $plClass ?>">
+            <?= number_format($profitLoss, 2) ?>
+        </span>
+    </div>
+    <a href="createpdf.php" target="_blank" download="portfolio.pdf" id="downloadPdf" class="btn btn-primary download-btn">
+        Download PDF
+    </a>
 </div>
 
 
-
-  
-
-
-    <main>
         <table border="1" cellpadding="5" cellspacing="0">
             <thead>
                 <tr>
@@ -382,12 +428,14 @@ $plClass = $profitLoss >= 0 ? 'text-profit' : 'text-loss';
             </thead>
             <tbody id="stockTableBody">
                 <?php
-                $stmt->execute(); // Rerun to reset pointer
+                $stmt->execute();
+                  // Rerun to reset pointer
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
                     $rowCount = 0;
                     while ($row = $result->fetch_assoc()) {
                         $rowCount++;
+                        $stockId = $row['id'];
                         $stockName = strtoupper(trim($row['stock_name']));
                         $stockQuantity = $row['stock_quantity'];
                         $buyPrice = $row['buy_price'];
@@ -400,23 +448,22 @@ $plClass = $profitLoss >= 0 ? 'text-profit' : 'text-loss';
                         $gainLossPercentage = ($WACC > 0) ? round(($gainLoss / $WACC) * 100, 2) : 0;
                         $gainLossClass = $gainLoss >= 0 ? 'text-profit' : 'text-loss';
 
-
                         echo "<tr>
-                                <td>$rowCount</td>
-                                <td>$stockName</td>
-                                <td>Rs " . number_format($stockPrice, 2) . "</td>
-                                <td>$stockQuantity</td>
-                                <td>Rs " . number_format($buyPrice, 2) . "</td>
-                                <td>Rs " . number_format($totalValue, 2) . "</td>
-                                <td>Rs " . number_format($WACC, 2) . "</td>
-                             <td class='$gainLossClass'>" . number_format($gainLoss, 2) . " ({$gainLossPercentage}%)</td>
-
-                                <td>$createdAt</td>
-                                <td>
-                                    <button class='editStockButton'>Edit</button>
-                                    <button class='deleteStockButton'>Delete</button>
-                                </td>
-                              </tr>";
+                        <td>$rowCount</td>
+                        <td>$stockName</td>
+                        <td>Rs " . number_format($stockPrice, 2) . "</td>
+                        <td>$stockQuantity</td>
+                        <td>Rs " . number_format($buyPrice, 2) . "</td>
+                        <td>Rs " . number_format($totalValue, 2) . "</td>
+                        <td>Rs " . number_format($WACC, 2) . "</td>
+                        <td class='$gainLossClass'>" . number_format($gainLoss, 2) . " ({$gainLossPercentage}%)</td>
+                        <td>$createdAt</td>
+                        <td>
+                            <a href='editstock.php?id=$stockId' class='editStockButton'>Edit</a>
+                            <a href='deletestock.php?id=$stockId' class='deleteStockButton'>Delete</a>
+                        </td>
+                      </tr>";
+                
                     }
                 } else {
                     echo "<tr><td colspan='10'>No stocks found</td></tr>";
@@ -428,24 +475,25 @@ $plClass = $profitLoss >= 0 ? 'text-profit' : 'text-loss';
             Total Portfolio Value: Rs 
             <span id="portfolioValue"><?php echo number_format($totalPortfolioValue, 2); ?></span>
         </div>
-    </main>
+    
 </div>
 
 <script>
-    function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', theme);
-    }
+  // Toggle theme function
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+    localStorage.setItem('theme', theme);
+}
 
-    // Load stored theme on page load
-    window.onload = function () {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('themeToggle').checked = true;
-        }
-    };
+// Load stored theme on page load
+window.onload = function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+};
+
 </script>
 </body>
 </html>

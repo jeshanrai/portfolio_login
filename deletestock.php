@@ -1,21 +1,33 @@
 <?php
-session_start();
-include('config.php');
-$conn = new mysqli('localhost', 'root', '', 'portfolio');
+$sid = $_GET["id"];
+echo "User with ID: " . $sid . " is going to be deleted.<br>";
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "portfolio";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if (isset($_GET['id'])) {
-    $stock_id = $_GET['id'];
-    $user_id = $_SESSION['user_id']; // User ID stored in session
+// Use prepared statement to avoid SQL injection
+$deleteSql = "DELETE FROM stocks WHERE id=?";
+$stmt = $conn->prepare($deleteSql);
+$stmt->bind_param("i", $sid); // "i" means the parameter is an integer
 
-    // Delete the BOID
-    $sql = "DELETE FROM portfolio WHERE id = '$stock_id' AND user_id = '$user_id'";
-    if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('BOID deleted successfully'); window.location.href = 'portfolio.php';</script>";
-    } else {
-        echo "<script>alert('Error deleting BOID'); window.location.href = 'portfolio.php';</script>";
-    }
+if ($stmt->execute()) {
+    // Redirect to portfolio.php after successful deletion
+    header('Location: portfolio.php?message=deleted');
+    exit();
+} else {
+    echo "Error deleting data: " . $stmt->error;
 }
+
+// Close the statement and connection
+$stmt->close();
+$conn->close();
 ?>
