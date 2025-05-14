@@ -351,6 +351,9 @@ body:not(.dark-mode) .download-btn {
 .download-btn:hover {
     background-color: #0056b3;
 }
+.logbutton{
+    margin-right: 80px;
+}
          
  </style>
 </head>
