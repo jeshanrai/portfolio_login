@@ -348,6 +348,8 @@ body:not(.dark-mode) .download-btn {
     background-color: #007bff;
 }
 
+
+
 .download-btn:hover {
     background-color: #0056b3;
 }
@@ -401,15 +403,15 @@ body:not(.dark-mode) .download-btn {
     $profitLoss = $totalPortfolioValue - $totalWACC;
 $plClass = $profitLoss >= 0 ? 'text-profit' : 'text-loss';
 ?>
-<div class="profit-loss" id="profitLoss" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 10px 20px; background-color: #f8f9fa; border-radius: 10px;">
-    <div>
-        Profit/Loss: Rs 
+<div class="profit-loss" id="profitLoss" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 10px 20px; border-radius: 10px;">
+    <div class="portfolio_summary" >
+ Profit/Loss: Rs
         <span id="profitLossValue" class="<?= $plClass ?>">
             <?= number_format($profitLoss, 2) ?>
         </span>
     </div>
     <a href="createpdf.php" target="_blank" download="portfolio.pdf" id="downloadPdf" class="btn btn-primary download-btn">
-        Download PDF
+        Download Statement
     </a>
 </div>
 
