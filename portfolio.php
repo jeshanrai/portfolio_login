@@ -356,7 +356,10 @@ body:not(.dark-mode) .download-btn {
 .logbutton{
     margin-right: 80px;
 }
-         
+       
+body{
+    overflow: hidden;
+}
  </style>
 </head>
 <body>

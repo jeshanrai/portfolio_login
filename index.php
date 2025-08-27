@@ -417,6 +417,11 @@ body.dark-mode .loss {
   color:red !important; /* bright red */
 }
 
+
+body{
+  overflow: hidden;
+}
+
     
     </style>
 </head>

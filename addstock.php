@@ -243,7 +243,9 @@ body.dark-mode .input-group input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
 }
-
+body{
+  overflow: hidden;
+}
 /* ===================== Button ===================== */
 #addStockButton {
   padding: 0.9rem;
